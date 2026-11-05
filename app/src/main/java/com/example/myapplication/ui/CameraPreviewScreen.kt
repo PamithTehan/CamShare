@@ -19,7 +19,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -106,6 +109,31 @@ fun CameraPreviewScreen(
                 .padding(start = 32.dp, end = 32.dp, bottom = 36.dp),
             contentAlignment = Alignment.Center
         ) {
+            // Left Side: Camera Flip / Switch Lens Button
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .size(58.dp)
+                    .clip(CircleShape)
+                    .background(Color.Black.copy(alpha = 0.4f), CircleShape)
+                    .border(2.dp, Color.White, CircleShape)
+                    .clickable {
+                        lensFacing = if (lensFacing == CameraSelector.DEFAULT_BACK_CAMERA) {
+                            CameraSelector.DEFAULT_FRONT_CAMERA
+                        } else {
+                            CameraSelector.DEFAULT_BACK_CAMERA
+                        }
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "Switch Camera",
+                    tint = Color.White,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+
             // Center: Capture (Shutter) Button
             if (isCapturing) {
                 CircularProgressIndicator(
