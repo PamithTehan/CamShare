@@ -26,7 +26,9 @@ fun CameraApp() {
         mutableStateOf(checkCameraPermission(context))
     }
 
-    var capturedPhotoUri by remember { mutableStateOf<Uri?>(null) }
+    // Persists last captured photo during the app session until app is closed
+    var lastCapturedPhotoUri by remember { mutableStateOf<Uri?>(null) }
+    var isViewingPhoto by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -45,19 +47,24 @@ fun CameraApp() {
                     )
                 }
 
-                capturedPhotoUri != null -> {
+                isViewingPhoto && lastCapturedPhotoUri != null -> {
                     PhotoPreviewScreen(
-                        photoUri = capturedPhotoUri!!,
+                        photoUri = lastCapturedPhotoUri!!,
                         onRetakePhoto = {
-                            capturedPhotoUri = null
+                            isViewingPhoto = false
                         }
                     )
                 }
 
                 else -> {
                     CameraPreviewScreen(
+                        lastCapturedPhotoUri = lastCapturedPhotoUri,
                         onPhotoCaptured = { uri ->
-                            capturedPhotoUri = uri
+                            lastCapturedPhotoUri = uri
+                            isViewingPhoto = true
+                        },
+                        onOpenCapturedPhoto = {
+                            isViewingPhoto = true
                         }
                     )
                 }

@@ -12,8 +12,10 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -28,20 +30,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import coil.compose.AsyncImage
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 @Composable
 fun CameraPreviewScreen(
+    lastCapturedPhotoUri: Uri?,
     onPhotoCaptured: (Uri) -> Unit,
+    onOpenCapturedPhoto: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -88,12 +95,15 @@ fun CameraPreviewScreen(
             modifier = Modifier.fillMaxSize()
         )
 
-        // Shutter Button
+        // Bottom Controls Container
         Box(
             modifier = Modifier
+                .fillMaxWidth()
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 36.dp)
+                .padding(start = 32.dp, end = 32.dp, bottom = 36.dp),
+            contentAlignment = Alignment.Center
         ) {
+            // Center: Capture (Shutter) Button
             if (isCapturing) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(72.dp),
@@ -128,6 +138,27 @@ fun CameraPreviewScreen(
                         .background(Color.White, CircleShape)
                         .border(4.dp, Color.LightGray, CircleShape)
                 ) {}
+            }
+
+            // Right Side: Redirect to Captured Photo Button
+            if (lastCapturedPhotoUri != null) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .size(56.dp)
+                        .clip(CircleShape)
+                        .background(Color.DarkGray, CircleShape)
+                        .border(2.dp, Color.White, CircleShape)
+                        .clickable { onOpenCapturedPhoto() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    AsyncImage(
+                        model = lastCapturedPhotoUri,
+                        contentDescription = "View Captured Photo",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
         }
     }
