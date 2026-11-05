@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,7 +35,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -46,9 +49,9 @@ import java.util.Locale
 
 @Composable
 fun CameraPreviewScreen(
-    lastCapturedPhotoUri: Uri?,
+    capturedPhotos: List<Uri>,
     onPhotoCaptured: (Uri) -> Unit,
-    onOpenCapturedPhoto: () -> Unit,
+    onOpenGallery: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -140,24 +143,47 @@ fun CameraPreviewScreen(
                 ) {}
             }
 
-            // Right Side: Redirect to Captured Photo Button
-            if (lastCapturedPhotoUri != null) {
+            // Right Side: Redirect to All Captured Photos
+            if (capturedPhotos.isNotEmpty()) {
+                val lastPhoto = capturedPhotos.last()
                 Box(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
-                        .size(56.dp)
-                        .clip(CircleShape)
-                        .background(Color.DarkGray, CircleShape)
-                        .border(2.dp, Color.White, CircleShape)
-                        .clickable { onOpenCapturedPhoto() },
-                    contentAlignment = Alignment.Center
+                        .size(58.dp)
                 ) {
-                    AsyncImage(
-                        model = lastCapturedPhotoUri,
-                        contentDescription = "View Captured Photo",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape)
+                            .background(Color.DarkGray, CircleShape)
+                            .border(2.dp, Color.White, CircleShape)
+                            .clickable { onOpenGallery() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AsyncImage(
+                            model = lastPhoto,
+                            contentDescription = "View Captured Photos Gallery",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+
+                    // Badge showing count of photos taken
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .size(22.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = capturedPhotos.size.toString(),
+                            color = Color.White,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }
